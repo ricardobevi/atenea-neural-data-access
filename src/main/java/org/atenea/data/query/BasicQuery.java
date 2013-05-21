@@ -17,11 +17,21 @@ public class BasicQuery {
 		
 		Node foundNode = Neo4jServer.getNode("word", word, "words");
 		
-		Iterator<Relationship> relationIt = foundNode.getRelationships().iterator();
+		if ( foundNode != null ){
 		
-		//cargo todas las palabras relacionadas.
-		while( relationIt.hasNext() )
-			relatedNodes.add( (String) relationIt.next().getEndNode().getProperty("word"));
+			Iterable<Relationship> relationships = foundNode.getRelationships();
+			
+			if ( relationships != null ){
+				
+				Iterator<Relationship> relationIt = relationships.iterator();
+				
+				//cargo todas las palabras relacionadas.
+				while( relationIt.hasNext() )
+					relatedNodes.add( (String) relationIt.next().getEndNode().getProperty("word") );
+				
+			}
+		
+		}
 		
 		return relatedNodes;
 	}
