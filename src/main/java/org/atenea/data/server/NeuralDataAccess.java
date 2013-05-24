@@ -11,7 +11,7 @@ public class NeuralDataAccess {
 			
 			try{
 				
-				Neo4jServer.init("/home/ric/graphDB");
+				Neo4jServer.init("./graphDB");
 				isDBStarted = true;
 				
 			} catch (IllegalStateException e){
