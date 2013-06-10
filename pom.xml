@@ -1,11 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.scuadra.atenea</groupId>
+	<groupId>org.squadra.atenea</groupId>
 	<artifactId>DataAccess</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>DataAccess</name>
 	<description>The data access layer</description>
+
 
 	<parent>
 		<groupId>AteneaPom</groupId>
@@ -14,7 +15,15 @@
 	</parent>
 
 	<dependencies>
-
+		
+		<!-- 
+		<dependency>
+			<groupId>org.squadra.atenea</groupId>
+			<artifactId>AteneaBase</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		 -->
+		 
 		<dependency>
 			<groupId>org.neo4j</groupId>
 			<artifactId>neo4j</artifactId>
@@ -34,14 +43,6 @@
 			<version>1.8.2</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.atenea</groupId>
-			<artifactId>AteneaBase</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-
 
 	</dependencies>
-
-
 </project>

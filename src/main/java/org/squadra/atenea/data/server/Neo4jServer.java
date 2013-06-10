@@ -15,7 +15,7 @@ import org.neo4j.server.WrappingNeoServerBootstrapper;
 import org.squadra.atenea.data.definition.Relation;
 
 public class Neo4jServer {
-
+ 
 	public static GraphDatabaseService graphDb;
 	public static WrappingNeoServerBootstrapper server;
 	
