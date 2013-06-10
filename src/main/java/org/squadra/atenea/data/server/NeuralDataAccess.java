@@ -1,4 +1,4 @@
-package org.atenea.data.server;
+package org.squadra.atenea.data.server;
 
 
 public class NeuralDataAccess {

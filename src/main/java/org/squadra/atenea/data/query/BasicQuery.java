@@ -1,12 +1,12 @@
-package org.atenea.data.query;
+package org.squadra.atenea.data.query;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.atenea.data.server.Neo4jServer;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.squadra.atenea.data.server.Neo4jServer;
 
 public class BasicQuery {
 	

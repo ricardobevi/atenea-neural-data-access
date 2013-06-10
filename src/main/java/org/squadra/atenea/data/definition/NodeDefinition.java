@@ -1,7 +1,7 @@
-package org.atenea.data.definition;
+package org.squadra.atenea.data.definition;
 
-import org.atenea.data.server.Neo4jServer;
 import org.neo4j.graphdb.Transaction;
+import org.squadra.atenea.data.server.Neo4jServer;
 
 public class NodeDefinition {
 	

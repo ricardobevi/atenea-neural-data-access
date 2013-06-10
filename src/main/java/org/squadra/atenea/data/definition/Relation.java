@@ -1,4 +1,4 @@
-package org.atenea.data.definition;
+package org.squadra.atenea.data.definition;
 
 import org.neo4j.graphdb.RelationshipType;
 
