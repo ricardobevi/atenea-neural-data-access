@@ -1,8 +1,7 @@
 package org.squadra.atenea.data.server;
 
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -15,12 +14,11 @@ import org.neo4j.kernel.GraphDatabaseAPI;
 import org.neo4j.server.WrappingNeoServerBootstrapper;
 import org.squadra.atenea.data.definition.Relation;
 
+@Log4j
 public class Neo4jServer {
  
 	public static GraphDatabaseService graphDb;
 	public static WrappingNeoServerBootstrapper server;
-	
-	private static Logger log = LogManager.getLogger("org.atenea.data.server");
 	
 	private static ExecutionEngine engine;
 	
@@ -33,6 +31,7 @@ public class Neo4jServer {
 
 		try{
 			
+			log.debug("------------log data");
 			graphDb = new GraphDatabaseFactory()
 					.newEmbeddedDatabase(databasePath);
 		    		
