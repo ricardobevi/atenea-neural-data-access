@@ -34,7 +34,7 @@ public class Neo4jServer {
 			
 			graphDb = new GraphDatabaseFactory()
 					.newEmbeddedDatabase(databasePath);
-			
+		    		
 			registerShutdownHook(graphDb);
 					
 			engine = new ExecutionEngine( graphDb );
