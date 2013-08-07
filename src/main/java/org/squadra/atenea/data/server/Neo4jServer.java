@@ -2,6 +2,7 @@ package org.squadra.atenea.data.server;
 
 
 import lombok.extern.log4j.Log4j;
+
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
