@@ -4,11 +4,13 @@ import lombok.extern.log4j.Log4j;
 
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
+import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.kernel.GraphDatabaseAPI;
 import org.neo4j.server.WrappingNeoServerBootstrapper;
@@ -34,8 +36,11 @@ public class Neo4jServer {
 		try {
 
 			log.debug("------------log data");
-			graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(
-					databasePath).newGraphDatabase();
+			graphDb = new GraphDatabaseFactory()
+			.newEmbeddedDatabaseBuilder(databasePath)
+			.setConfig( GraphDatabaseSettings.relationship_keys_indexable, "id" )
+			.setConfig( GraphDatabaseSettings.relationship_auto_indexing, "true" )
+			.newGraphDatabase();
 
 			registerShutdownHook(graphDb);
 
@@ -136,7 +141,7 @@ public class Neo4jServer {
 		Relationship relationship;
 
 		relationship = node1.createRelationshipTo(node2,
-				Relation.Types.SENTENCE);
+				DynamicRelationshipType.withName(Relation.Types.SENTENCE.toString()));
 		relationship.setProperty("seq", sequence);
 		relationship.setProperty("id", numberSentence);
 
