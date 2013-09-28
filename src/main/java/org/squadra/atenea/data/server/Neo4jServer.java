@@ -28,8 +28,7 @@ public class Neo4jServer {
 	/**
 	 * Inicializa la base de datos.
 	 * 
-	 * @param databasePath
-	 *            La ruta donde estarán los archivos de la base de datos.
+	 * @param databasePath La ruta donde estarán los archivos de la base de datos.
 	 */
 	public static void init(String databasePath) {
 
@@ -60,29 +59,23 @@ public class Neo4jServer {
 	/**
 	 * Crea un nuevo indice si este no existe ya, sino devuelve el ya existente.
 	 * 
-	 * @param index
-	 *            El nombre del índice a crear.
+	 * @param index El nombre del índice a crear.
 	 * @return El indice creado.
 	 */
 	public static Index<Node> createOrGetIndex(String index) {
 
 		Index<Node> retIndex;
-
 		retIndex = graphDb.index().forNodes(index);
-
 		return retIndex;
-
 	}
 
+	
 	/**
 	 * Crea un nuevo nodo u obtiene uno ya existente.
 	 * 
-	 * @param attr
-	 *            El descriptor del atributo pricipal del nodo.
-	 * @param value
-	 *            El valor del atributo principal.
-	 * @param index
-	 *            El nombre del índice al cual se abrega el nodo.
+	 * @param attr El descriptor del atributo pricipal del nodo.
+	 * @param value El valor del atributo principal.
+	 * @param index El nombre del índice al cual se abrega el nodo.
 	 * @return El nodo creado.
 	 */
 	public static Node getNode(String attr, String value, String index) {
@@ -96,6 +89,13 @@ public class Neo4jServer {
 
 	}
 
+	
+	/**
+	 * Crea un nodo tipo Word
+	 * @param value
+	 * @param index
+	 * @return
+	 */
 	public static Node createNode(Word value, String index) {
 
 		Node node = null;
@@ -107,7 +107,10 @@ public class Neo4jServer {
 		if (searchNode == null) {
 
 			node = graphDb.createNode();
+			
+			//TODO: Guardar el objeto Word entero en la property
 			node.setProperty("word", value.getName());
+			
 			// node.setProperty("type", value.getType());
 			// node.setProperty("subtype", value.getSubType());
 			// node.setProperty("gender", value.getGender());
@@ -127,19 +130,20 @@ public class Neo4jServer {
 	}
 
 	/**
-	 * 
+	 * Relaciona dos nodos con una relacion tipo oracion y agrega las
+	 * propiedades de ID de oracion y secuencia.
 	 * @param node1
 	 * @param node2
 	 * @param numberSentence
 	 * @param sequence
-	 *            sequence in the sentence
-	 * @return
+	 * @return relacion creada entre los nodos
 	 */
-	public static Relationship relateNodes(Node node1, Node node2,
+	public static Relationship relateNodesBySentenceType (Node node1, Node node2,
 			long numberSentence, int sequence) {
 
 		Relationship relationship;
 
+		//TODO: preguntar a Lucas por qué puso el Dynamic y withName en lugar de solo la relacion
 		relationship = node1.createRelationshipTo(node2,
 				DynamicRelationshipType.withName(Relation.Types.SENTENCE.toString()));
 		relationship.setProperty("seq", sequence);
@@ -159,17 +163,54 @@ public class Neo4jServer {
 		return relationship;
 
 	}
+	
+	
+	/**
+	 * Relaciona dos nodos con una relacion tipo dialogo y agrega las
+	 * propiedades de ID de oracion y secuencia.
+	 * @param node1
+	 * @param node2
+	 * @param sentenceId
+	 * @param sequence
+	 * @return relacion creada entre los nodos.
+	 * @author Leandro Morrone
+	 */
+	public static Relationship relateNodesByDialogType (Node node1, Node node2, 
+			String sentenceId, int sequence) {
+		
+		Relationship relationship;
+		
+		relationship = node1.createRelationshipTo(node2, 
+				DynamicRelationshipType.withName(Relation.Types.DIALOG.toString()));
+		relationship.setProperty("sequence", sequence);
+		relationship.setProperty("sentenceId", sentenceId);
+		
+		return relationship;
+	}
+	
 
+	/**
+	 * Inicia una transaccion
+	 * @return transaccion
+	 */
 	public static Transaction beginTransaction() {
 		Transaction tx = graphDb.beginTx();
 		return tx;
 	}
 
+	/**
+	 * Ejecuta una query escrita en lenguaje cypher
+	 * @param query
+	 * @return resultado de la consulta
+	 */
 	public static ExecutionResult excecuteQuery(String query) {
 		ExecutionResult result = engine.execute(query);
 		return result;
 	}
 
+	/**
+	 * Detiene la base de datos
+	 */
 	public static void stop() {
 
 		try {

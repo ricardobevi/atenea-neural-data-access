@@ -6,14 +6,27 @@ import java.util.Iterator;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.squadra.atenea.data.definition.NodeDefinition;
 import org.squadra.atenea.data.server.Neo4jServer;
 
 public class BasicQuery {
 	
+
 	public ArrayList<String> getRelatedWords( String word ){
 		
 		ArrayList<String> relatedNodes = new ArrayList<String>();
 		
+		/*
+		Node foundNode;
+		NodeDefinition nodeDefinition = new NodeDefinition();
+		nodeDefinition.beginTransaction();
+		try {
+			foundNode = Neo4jServer.getNode("word", word, "words");
+			nodeDefinition.transactionSuccess();
+		}
+		finally {
+			nodeDefinition.endTransaction();
+		}*/
 		
 		Node foundNode = Neo4jServer.getNode("word", word, "words");
 		
