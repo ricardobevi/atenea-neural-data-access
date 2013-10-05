@@ -3,7 +3,6 @@ package org.squadra.atenea.data.server;
 import lombok.extern.log4j.Log4j;
 
 import org.neo4j.helpers.collection.MapUtil;
-import org.neo4j.index.impl.lucene.LuceneBatchInserterIndexProviderNewImpl;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
 import org.neo4j.unsafe.batchinsert.BatchInserterIndex;
 import org.neo4j.unsafe.batchinsert.BatchInserterIndexProvider;

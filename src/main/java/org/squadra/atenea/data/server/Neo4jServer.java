@@ -23,7 +23,7 @@ public class Neo4jServer {
 	public static GraphDatabaseService graphDb;
 	public static WrappingNeoServerBootstrapper server;
 
-	private static ExecutionEngine engine;
+	public static ExecutionEngine engine;
 
 	/**
 	 * Inicializa la base de datos.
@@ -37,7 +37,7 @@ public class Neo4jServer {
 			log.debug("------------log data");
 			graphDb = new GraphDatabaseFactory()
 			.newEmbeddedDatabaseBuilder(databasePath)
-			.setConfig( GraphDatabaseSettings.relationship_keys_indexable, "id" )
+			.setConfig( GraphDatabaseSettings.relationship_keys_indexable, "sentenceId" )
 			.setConfig( GraphDatabaseSettings.relationship_auto_indexing, "true" )
 			.newGraphDatabase();
 
@@ -139,15 +139,15 @@ public class Neo4jServer {
 	 * @return relacion creada entre los nodos
 	 */
 	public static Relationship relateNodesBySentenceType (Node node1, Node node2,
-			long numberSentence, int sequence) {
+			long sentenceId, int sequence) {
 
 		Relationship relationship;
 
 		//TODO: preguntar a Lucas por qué puso el Dynamic y withName en lugar de solo la relacion
 		relationship = node1.createRelationshipTo(node2,
 				DynamicRelationshipType.withName(Relation.Types.SENTENCE.toString()));
-		relationship.setProperty("seq", sequence);
-		relationship.setProperty("id", numberSentence);
+		relationship.setProperty("sentenceId", sentenceId);
+		relationship.setProperty("sequence", sequence);
 
 		// Si la 2da palabra es un verbo, asociarlo con el verbo sin conjugar
 		// if (node2.getProperty("type") == "verbo")
@@ -172,18 +172,23 @@ public class Neo4jServer {
 	 * @param node2
 	 * @param sentenceId
 	 * @param sequence
+	 * @param probabilities
 	 * @return relacion creada entre los nodos.
 	 * @author Leandro Morrone
 	 */
 	public static Relationship relateNodesByDialogType (Node node1, Node node2, 
-			String sentenceId, int sequence) {
+			long sentenceId, int sequence, Integer[] probabilities) {
 		
 		Relationship relationship;
 		
 		relationship = node1.createRelationshipTo(node2, 
 				DynamicRelationshipType.withName(Relation.Types.DIALOG.toString()));
-		relationship.setProperty("sequence", sequence);
 		relationship.setProperty("sentenceId", sentenceId);
+		relationship.setProperty("sequence", sequence);
+		
+		for (int i = 0; i < probabilities.length; i++) {
+			relationship.setProperty("prob" + i, probabilities[i]);
+		}
 		
 		return relationship;
 	}
