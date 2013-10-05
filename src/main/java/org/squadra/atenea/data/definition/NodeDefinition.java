@@ -16,23 +16,24 @@ public class NodeDefinition {
 		this.transactionSuccess();
 	}
 	
-	public void relateWords(Word word1, Word word2, long numberSentence, int sequence){
+	public void relateWords(Word word1, Word word2, long sentenceId, int sequence){
 		
 		Neo4jServer.relateNodesBySentenceType(
 				Neo4jServer.createNode(word1, "words"),
 				Neo4jServer.createNode(word2, "words"),
-				numberSentence, sequence
+				sentenceId, sequence
 		);
 		
 		this.transactionSuccess();
 	}
 	
-	public void relateDialogWords(Word word1, Word word2, String sentenceId, int sequence){
+	public void relateDialogWords(Word word1, Word word2, long sentenceId, 
+			int sequence, Integer[] probabilities){
 		
 		Neo4jServer.relateNodesByDialogType(
-				Neo4jServer.createNode(word1, "words"),
+				Neo4jServer.createNode(word1, "dialogTypes"),
 				Neo4jServer.createNode(word2, "words"),
-				sentenceId, sequence
+				sentenceId, sequence, probabilities
 		);
 		
 		this.transactionSuccess();
