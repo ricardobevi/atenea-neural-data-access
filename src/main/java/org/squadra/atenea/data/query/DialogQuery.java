@@ -1,36 +1,46 @@
 package org.squadra.atenea.data.query;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Map;
-import java.util.Map.Entry;
+
+import lombok.extern.log4j.Log4j;
 
 import org.neo4j.cypher.javacompat.ExecutionResult;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.squadra.atenea.base.word.Word;
 import org.squadra.atenea.data.server.Neo4jServer;
-import org.squadra.atenea.data.server.NeuralDataAccess;
 
+/**
+ * Clase con metodos para realizar consultas en la base de datos, referidas
+ * al dialogo cotidiano e interjecciones.
+ * @author Leandro Morrone
+ *
+ */
+@Log4j
 public class DialogQuery {
 	
-	public static void main(String args[]) {
+	/**
+	 * Busca en la base de datos una respuesta aleatoria segun el tipo de dialogo
+	 * @param dialogType Tipo de dialogo
+	 * @return Lista de palabras que conforman la respuesta
+	 */
+	public ArrayList<Word> findRandomSentenceByDialogType(String dialogType) {
 		
-		NeuralDataAccess.init();
-		DialogQuery dq = new DialogQuery();
-		dq.findRandomSentenceByDialogType("$_SALUDO");
-	}
-
-	public void findRandomSentenceByDialogType(String dialogType) {
-		
+		// Obtengo las posibles respuestas al tipo de dialogo
 		ExecutionResult result = findSentencesByDialogType(dialogType);
 		
-		String rows = "";
+		// Selecciono una respuesta aleatoria segun el horario
+		Long sentenceId = lottery(result);
 		
-		for ( Map<String, Object> row : result )
-		{
-		    for ( Entry<String, Object> column : row.entrySet() )
-		    {
-		        rows += column.getKey() + ": " + column.getValue() + "; ";
-		    }
-		    rows += "\n";
-		}
-		System.out.println(rows);
+		// Obtengo las posibles respuestas al tipo de dialogo
+		ExecutionResult result2 = findSentenceById(sentenceId);
+		
+		// Convierto la respuesta de nodos a texto
+		String response = resultToResponseText(result2);
+		
+		return null;
 	}
 	
 	
@@ -39,36 +49,113 @@ public class DialogQuery {
 		Neo4jServer.beginTransaction();
 		String query = 
 				  " START "
-				+ "     n = node:dialogTypes('word:" + dialogType + "')"
+				+ "     startNode = node:dialogTypes('name:" + dialogType + "')"
 				+ " MATCH "
-				+ "     (n)-[r:DIALOG]->(m)"
+				+ "     (startNode)-[relation:DIALOG]->(endNode)"
 				+ " RETURN "
-				+ "     n, r, m"
+				+ "     relation"
 				+ " ORDER BY "
-				+ "     r.sentenceId ASC;";
+				+ "     relation.sentenceId ASC;";
 		
 		ExecutionResult result = Neo4jServer.engine.execute(query);
 		return result;
 	}
 	
-	private ExecutionResult findSentenceById(String id) {
+	private ExecutionResult findSentenceById(Long id) {
 		
 		Neo4jServer.beginTransaction();
 		String query = 
 				  " START "
-				+ "     n = node:words('*:*')"
+				+ "     startNode = node:words('*:*')"
 				+ " MATCH "
-				+ "     (n)-[r:SENTENCE]->(m)"
+				+ "     (startNode)-[relation:SENTENCE]->(endNode)"
 				+ " WHERE "
-				+ "     r.sentenceId = " + id
+				+ "     relation.sentenceId = " + id
 				+ " RETURN "
-				+ "     n, r, m"
+				+ "     startNode, relation, endNode"
 				+ " ORDER BY "
-				+ "     r.sequence ASC;";
+				+ "     relation.sequence ASC;";
 		
 		ExecutionResult result = Neo4jServer.engine.execute(query);
 		return result;
 	}
 	
+	
+	private Long lottery(ExecutionResult result) {
+		
+		Integer maxRandom = 0;
+		Integer currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+		String probField = getProbFieldByTime(currentHour);
+		ArrayList<Relationship> relations = new ArrayList<>();
+		
+		System.out.println("Hora actual: " + currentHour);
+		
+		for ( Map<String, Object> row : result )
+		{
+			Relationship relation = (Relationship) row.get("relation");
+			relations.add(relation);
+			
+			Integer probability = (Integer) relation.getProperty(probField);
+			maxRandom += probability;
+			
+			System.out.println(relation.getProperty("sentenceId"));
+		}
+		
+		Integer ticket = (int) Math.round(Math.random() * maxRandom);
+		
+		System.out.println("Max: " + maxRandom + "\nTicket: " + ticket);
+		
+		Integer sumLottery = 0;
+		
+		for ( Relationship relation : relations )
+		{
+			sumLottery += (Integer) relation.getProperty(probField);
+			System.out.println("Prob: " + relation.getProperty(probField) + " - Incr:" + sumLottery);
+			
+			if (ticket < sumLottery) {
+				System.out.println("ID ganador: " + relation.getProperty("sentenceId"));
+				return (Long) relation.getProperty("sentenceId");
+			}
+			
+		}
+		// Por aca no deberia salir nunca
+		log.warn("No se encontro ninguna respuesta en la base de datos.");
+		return -1l;
+	}
+	
+	
+	private String getProbFieldByTime(Integer currentHour) {
+		
+		if (currentHour >= 5 && currentHour < 8 ) {
+			return "prob0";
+		}
+		if (currentHour >= 8 && currentHour < 13 ) {
+			return "prob1";
+		}
+		if (currentHour >= 13 && currentHour < 20 ) {
+			return "prob2";
+		}
+		if (currentHour >= 20 || currentHour < 2 ) {
+			return "prob3";
+		}
+		if (currentHour >= 2 && currentHour < 5 ) {
+			return "prob4";
+		}
+		return "prob2"; 
+	}
+	
+	private String resultToResponseText(ExecutionResult result) {
+		
+		String responseText = "";
+		
+		for ( Map<String, Object> row : result )
+		{
+			Node startNode = (Node) row.get("startNode");
+			Node endNode = (Node) row.get("endNode");
+			
+			System.out.println(startNode.getProperty("name") + " -> " + endNode.getProperty("name"));
+		}
+		return responseText;
+	}
 	
 }

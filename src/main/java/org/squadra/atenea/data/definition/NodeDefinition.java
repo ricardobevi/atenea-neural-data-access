@@ -11,11 +11,6 @@ public class NodeDefinition {
 	public NodeDefinition(){
 	}
 	
-	public void insertWord(String word){
-		//Neo4jServer.createNode(word, "words");
-		this.transactionSuccess();
-	}
-	
 	public void relateWords(Word word1, Word word2, long sentenceId, int sequence){
 		
 		Neo4jServer.relateNodesBySentenceType(
