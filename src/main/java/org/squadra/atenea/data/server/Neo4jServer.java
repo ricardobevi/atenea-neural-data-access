@@ -102,32 +102,41 @@ public class Neo4jServer {
 
 		// obtener nodo si existe
 		Index<Node> nodesIndex = createOrGetIndex(index);
-		Node searchNode = nodesIndex.get("word", value.getName()).getSingle();
+		Node searchNode = nodesIndex.get("name", value.getName()).getSingle();
 
 		if (searchNode == null) {
 
 			node = graphDb.createNode();
+			setWordNodeProperties(node, value);
 			
-			//TODO: Guardar el objeto Word entero en la property
-			node.setProperty("word", value.getName());
-			
-			// node.setProperty("type", value.getType());
-			// node.setProperty("subtype", value.getSubType());
-			// node.setProperty("gender", value.getGender());
-			// node.setProperty("number", value.getNumber());
-			// node.setProperty("mode", value.getPerson());
-			// node.setProperty("tense", value.getTense());
-			// node.setProperty("person", value.getPerson());
-
-			nodesIndex.add(node, "word", value.getName());
+			nodesIndex.add(node, "name", value.getName());
 
 		} else {
 			node = searchNode;
 		}
 
 		return node;
-
 	}
+	
+	
+	/**
+	 * Setea las propiedades necesarias del objeto Word al nodo.
+	 * @param node
+	 * @param word
+	 */
+	private static void setWordNodeProperties(Node node, Word word) {
+		node.setProperty("name", word.getName());
+		//TODO: para el baseWord hay que crear un nodo aparte.
+		node.setProperty("baseWord", word.getBaseWord());
+		node.setProperty("type", word.getType());
+		node.setProperty("subtype", word.getSubType());
+		node.setProperty("gender", word.getGender());
+		node.setProperty("number", word.getNumber());
+		node.setProperty("mode", word.getPerson());
+		node.setProperty("tense", word.getTense());
+		node.setProperty("person", word.getPerson());
+	}
+	
 
 	/**
 	 * Relaciona dos nodos con una relacion tipo oracion y agrega las
@@ -142,8 +151,7 @@ public class Neo4jServer {
 			long sentenceId, int sequence) {
 
 		Relationship relationship;
-
-		//TODO: preguntar a Lucas por qué puso el Dynamic y withName en lugar de solo la relacion
+		
 		relationship = node1.createRelationshipTo(node2,
 				DynamicRelationshipType.withName(Relation.Types.SENTENCE.toString()));
 		relationship.setProperty("sentenceId", sentenceId);

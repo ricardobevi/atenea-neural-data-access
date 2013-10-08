@@ -1,6 +1,8 @@
 package org.squadra.atenea.data.server;
 
+import lombok.extern.log4j.Log4j;
 
+@Log4j
 public class NeuralDataAccess {
 	
 	private static boolean isDBStarted = false; 
@@ -15,7 +17,7 @@ public class NeuralDataAccess {
 				isDBStarted = true;
 				
 			} catch (IllegalStateException e){
-				//TODO: log db lockeada
+				log.error("Base de datos bloqueada.");
 			}
 			
 		}

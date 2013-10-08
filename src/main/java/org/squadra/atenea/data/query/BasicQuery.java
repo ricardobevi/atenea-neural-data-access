@@ -16,18 +16,6 @@ public class BasicQuery {
 		
 		ArrayList<String> relatedNodes = new ArrayList<String>();
 		
-		/*
-		Node foundNode;
-		NodeDefinition nodeDefinition = new NodeDefinition();
-		nodeDefinition.beginTransaction();
-		try {
-			foundNode = Neo4jServer.getNode("word", word, "words");
-			nodeDefinition.transactionSuccess();
-		}
-		finally {
-			nodeDefinition.endTransaction();
-		}*/
-		
 		Node foundNode = Neo4jServer.getNode("word", word, "words");
 		
 		if ( foundNode != null ){
