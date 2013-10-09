@@ -38,9 +38,9 @@ public class DialogQuery {
 		ExecutionResult result2 = findSentenceById(sentenceId);
 		
 		// Convierto la respuesta de nodos a texto
-		String response = resultToResponseText(result2);
+		ArrayList<Word> response = resultToResponseWords(result2);
 		
-		return null;
+		return response;
 	}
 	
 	
@@ -98,19 +98,19 @@ public class DialogQuery {
 			Integer probability = (Integer) relation.getProperty(probField);
 			maxRandom += probability;
 			
-			System.out.println(relation.getProperty("sentenceId"));
+			//System.out.println(relation.getProperty("sentenceId"));
 		}
 		
 		Integer ticket = (int) Math.round(Math.random() * maxRandom);
 		
-		System.out.println("Max: " + maxRandom + "\nTicket: " + ticket);
+		System.out.println("Max: " + maxRandom + " Ticket: " + ticket);
 		
 		Integer sumLottery = 0;
 		
 		for ( Relationship relation : relations )
 		{
 			sumLottery += (Integer) relation.getProperty(probField);
-			System.out.println("Prob: " + relation.getProperty(probField) + " - Incr:" + sumLottery);
+			//System.out.println("Prob: " + relation.getProperty(probField) + " - Incr:" + sumLottery);
 			
 			if (ticket < sumLottery) {
 				System.out.println("ID ganador: " + relation.getProperty("sentenceId"));
@@ -144,18 +144,23 @@ public class DialogQuery {
 		return "prob2"; 
 	}
 	
-	private String resultToResponseText(ExecutionResult result) {
+	private ArrayList<Word> resultToResponseWords(ExecutionResult result) {
 		
-		String responseText = "";
+		ArrayList<Word> response = new ArrayList<>();
+		boolean firstRel = true;
 		
 		for ( Map<String, Object> row : result )
 		{
-			Node startNode = (Node) row.get("startNode");
-			Node endNode = (Node) row.get("endNode");
+			if (firstRel) {
+				Node startNode = (Node) row.get("startNode");
+				response.add(Neo4jServer.nodeToWord(startNode));
+				firstRel = false;
+			}
 			
-			System.out.println(startNode.getProperty("name") + " -> " + endNode.getProperty("name"));
+			Node endNode = (Node) row.get("endNode");
+			response.add(Neo4jServer.nodeToWord(endNode));
 		}
-		return responseText;
+		return response;
 	}
 	
 }

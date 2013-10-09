@@ -7,6 +7,7 @@ import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -135,6 +136,32 @@ public class Neo4jServer {
 		node.setProperty("mode", word.getPerson());
 		node.setProperty("tense", word.getTense());
 		node.setProperty("person", word.getPerson());
+	}
+	
+	
+	/**
+	 * Recibe un nodo y devuelve un objeto Word con las propiedades
+	 * seteadas obtenidas del nodo.
+	 * @param node
+	 * @return Objeto Word con las propiedades obtenidas del nodo.
+	 */
+	public static Word nodeToWord(Node node) {
+		
+		Word word = new Word((String) node.getProperty("name"));
+		
+		try {
+			word.setBaseWord((String) node.getProperty("baseWord"));
+			word.setType((String) node.getProperty("type"));
+			word.setSubType((String) node.getProperty("subtype"));
+			word.setGender((String) node.getProperty("gender"));
+			word.setNumber((String) node.getProperty("number"));
+			word.setMode((String) node.getProperty("mode"));
+			word.setTense((String) node.getProperty("tense"));
+			word.setPerson((String) node.getProperty("person"));
+		} catch (NotFoundException e) {
+			log.error("Propiedad no encontrada.");
+		}
+		return word;
 	}
 	
 
