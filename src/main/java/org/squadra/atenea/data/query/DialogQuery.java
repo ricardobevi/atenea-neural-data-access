@@ -88,8 +88,6 @@ public class DialogQuery {
 		String probField = getProbFieldByTime(currentHour);
 		ArrayList<Relationship> relations = new ArrayList<>();
 		
-		System.out.println("Hora actual: " + currentHour);
-		
 		for ( Map<String, Object> row : result )
 		{
 			Relationship relation = (Relationship) row.get("relation");
@@ -112,7 +110,7 @@ public class DialogQuery {
 			sumLottery += (Integer) relation.getProperty(probField);
 			//System.out.println("Prob: " + relation.getProperty(probField) + " - Incr:" + sumLottery);
 			
-			if (ticket < sumLottery) {
+			if (ticket <= sumLottery) {
 				System.out.println("ID ganador: " + relation.getProperty("sentenceId"));
 				return (Long) relation.getProperty("sentenceId");
 			}
