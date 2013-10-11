@@ -22,11 +22,11 @@ public class NodeDefinition {
 		this.transactionSuccess();
 	}
 	
-	public void relateDialogWords(Word word1, Word word2, long sentenceId, 
-			int sequence, Integer[] probabilities){
+	public void relateTypeOfDialogWords(Word word1, Word word2, long sentenceId, 
+			int sequence, Integer[] probabilities, String typeOfDialog){
 		
 		Neo4jServer.relateNodesByDialogType(
-				Neo4jServer.createNode(word1, "dialogTypes"),
+				Neo4jServer.createNode(word1, typeOfDialog),
 				Neo4jServer.createNode(word2, "words"),
 				sentenceId, sequence, probabilities
 		);
