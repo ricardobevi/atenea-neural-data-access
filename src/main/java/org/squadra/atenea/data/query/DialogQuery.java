@@ -8,6 +8,7 @@ import lombok.extern.log4j.Log4j;
 
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.Relationship;
 import org.squadra.atenea.base.word.Word;
 import org.squadra.atenea.data.server.Neo4jServer;
@@ -26,10 +27,10 @@ public class DialogQuery {
 	 * @param dialogType Tipo de dialogo
 	 * @return Lista de palabras que conforman la respuesta
 	 */
-	public ArrayList<Word> findRandomSentenceByDialogType(String dialogType) {
+	public ArrayList<Word> findRandomSentenceByDialogType(String indexType, String dialogType) {
 		
 		// Obtengo las posibles respuestas al tipo de dialogo
-		ExecutionResult result = findSentencesByDialogType(dialogType);
+		ExecutionResult result = findSentencesByDialogType(indexType, dialogType);
 		
 		// Selecciono una respuesta aleatoria segun el horario
 		Long sentenceId = lottery(result);
@@ -44,12 +45,12 @@ public class DialogQuery {
 	}
 	
 	
-	private ExecutionResult findSentencesByDialogType(String dialogType) {
+	private ExecutionResult findSentencesByDialogType(String indexType, String dialogType) {
 		
 		Neo4jServer.beginTransaction();
 		String query = 
 				  " START "
-				+ "     startNode = node:dialogTypes('name:" + dialogType + "')"
+				+ "     startNode = node:" + indexType + "('name:" + dialogType + "')"
 				+ " MATCH "
 				+ "     (startNode)-[relation:DIALOG]->(endNode)"
 				+ " RETURN "
@@ -85,7 +86,7 @@ public class DialogQuery {
 		
 		Integer maxRandom = 0;
 		Integer currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-		String probField = getProbFieldByTime(currentHour);
+		String probField = getProbFieldByTime(currentHour, result);
 		ArrayList<Relationship> relations = new ArrayList<>();
 		
 		for ( Map<String, Object> row : result )
@@ -122,24 +123,34 @@ public class DialogQuery {
 	}
 	
 	
-	private String getProbFieldByTime(Integer currentHour) {
+	private String getProbFieldByTime(Integer currentHour, ExecutionResult result) {
+		
+		String probField = "";
 		
 		if (currentHour >= 5 && currentHour < 8 ) {
-			return "prob0";
+			probField = "prob0";
 		}
 		if (currentHour >= 8 && currentHour < 13 ) {
-			return "prob1";
+			probField = "prob1";
 		}
 		if (currentHour >= 13 && currentHour < 20 ) {
-			return "prob2";
+			probField = "prob2";
 		}
 		if (currentHour >= 20 || currentHour < 2 ) {
-			return "prob3";
+			probField = "prob3";
 		}
 		if (currentHour >= 2 && currentHour < 5 ) {
-			return "prob4";
+			probField = "prob4";
 		}
-		return "prob2"; 
+		
+		try {
+			result.columnAs(probField);
+		}
+		catch (NotFoundException e) {
+			log.warn("Columna no encontrada en el resultado de la query.");
+			return "prob0";
+		}
+		return probField;
 	}
 	
 	private ArrayList<Word> resultToResponseWords(ExecutionResult result) {
