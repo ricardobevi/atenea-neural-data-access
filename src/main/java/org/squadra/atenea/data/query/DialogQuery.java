@@ -12,6 +12,7 @@ import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.Relationship;
 import org.squadra.atenea.base.word.Word;
 import org.squadra.atenea.data.server.Neo4jServer;
+import org.squadra.atenea.data.server.NeuralDataAccess;
 
 /**
  * Clase con metodos para realizar consultas en la base de datos, referidas
@@ -45,6 +46,38 @@ public class DialogQuery {
 	}
 	
 	
+	/**
+	 * Busca en la base de datos todas las respuestas posibles a un tipo de dialogo
+	 * @param indexType Tipo de dialogo
+	 * @return Lista de lista de palabras (lista de oraciones)
+	 */
+	public ArrayList<ArrayList<Word>> findAllSentences(String indexType) {
+		
+		ArrayList<ArrayList<Word>> responses = new ArrayList<>();
+		
+		// Obtengo todas los IDs de las respuestas
+		ExecutionResult result = findSentencesByDialogType(indexType, "*");
+		
+		// Obtengo las respuestas de cada ID
+		for ( Map<String, Object> row : result )
+		{
+			ExecutionResult result2 = findSentenceById(
+					(Long)((Relationship) row.get("relation")).getProperty("sentenceId"));
+			
+			ArrayList<Word> response = new ArrayList<>();
+			
+			response.add(new Word( 
+					(String)((Node) row.get("startNode")).getProperty("name") ));
+			
+			response.addAll(resultToResponseWords(result2));
+			
+			responses.add(response);
+		}
+		
+		return responses;
+	}
+	
+	
 	private ExecutionResult findSentencesByDialogType(String indexType, String dialogType) {
 		
 		Neo4jServer.beginTransaction();
@@ -54,7 +87,7 @@ public class DialogQuery {
 				+ " MATCH "
 				+ "     (startNode)-[relation:DIALOG]->(endNode)"
 				+ " RETURN "
-				+ "     relation"
+				+ "     startNode, relation"
 				+ " ORDER BY "
 				+ "     relation.sentenceId ASC;";
 		
