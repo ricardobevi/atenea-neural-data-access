@@ -1,5 +1,7 @@
 package org.squadra.atenea.data.server;
 
+import java.util.ArrayList;
+
 import lombok.extern.log4j.Log4j;
 
 import org.neo4j.cypher.javacompat.ExecutionEngine;
@@ -17,15 +19,18 @@ import org.neo4j.kernel.GraphDatabaseAPI;
 import org.neo4j.server.WrappingNeoServerBootstrapper;
 import org.squadra.atenea.base.word.Word;
 import org.squadra.atenea.data.definition.Relation;
+import org.squadra.atenea.data.query.DialogQuery;
 
 @Log4j
 public class Neo4jServer {
 
 	public static GraphDatabaseService graphDb;
 	public static WrappingNeoServerBootstrapper server;
+	
+	public static ArrayList <ArrayList <Word>> dialogCache;
 
 	public static ExecutionEngine engine;
-
+	
 	/**
 	 * Inicializa la base de datos.
 	 * 
@@ -48,13 +53,26 @@ public class Neo4jServer {
 
 			server = new WrappingNeoServerBootstrapper(
 					(GraphDatabaseAPI) graphDb);
-
+			
 			server.start();
+			
+			loadDialogCache();
 
 		} catch (Exception e) {
 			log.error("Error stating database.", e);
 		}
 
+	}
+	
+	
+	/**
+	 * Carga la cache con las respuestas a los dialogos para agilizar el
+	 * procesamiento.
+	 */
+	public static void loadDialogCache() {
+		log.debug("Cargando cache de dialogos...");
+		dialogCache = new DialogQuery().findAllSentences("dialogType");
+		log.debug("Fin de carga de cache");
 	}
 
 	/**
@@ -64,7 +82,7 @@ public class Neo4jServer {
 	 * @return El indice creado.
 	 */
 	public static Index<Node> createOrGetIndex(String index) {
-
+		
 		Index<Node> retIndex;
 		retIndex = graphDb.index().forNodes(index);
 		return retIndex;
