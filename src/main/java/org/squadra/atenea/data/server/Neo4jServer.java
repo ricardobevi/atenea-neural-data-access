@@ -20,16 +20,17 @@ import org.neo4j.server.WrappingNeoServerBootstrapper;
 import org.squadra.atenea.base.word.Word;
 import org.squadra.atenea.data.definition.Relation;
 import org.squadra.atenea.data.query.DialogQuery;
+import org.squadra.atenea.parser.model.SimpleSentence;
 
 @Log4j
 public class Neo4jServer {
 
 	public static GraphDatabaseService graphDb;
 	public static WrappingNeoServerBootstrapper server;
-	
-	public static ArrayList <ArrayList <Word>> dialogCache;
-
 	public static ExecutionEngine engine;
+	
+	public static ArrayList<SimpleSentence> dialogCache;
+
 	
 	/**
 	 * Inicializa la base de datos.
@@ -55,8 +56,6 @@ public class Neo4jServer {
 					(GraphDatabaseAPI) graphDb);
 			
 			server.start();
-			
-			loadDialogCache();
 
 		} catch (Exception e) {
 			log.error("Error stating database.", e);

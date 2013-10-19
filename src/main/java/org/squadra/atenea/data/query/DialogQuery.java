@@ -12,7 +12,7 @@ import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.Relationship;
 import org.squadra.atenea.base.word.Word;
 import org.squadra.atenea.data.server.Neo4jServer;
-import org.squadra.atenea.data.server.NeuralDataAccess;
+import org.squadra.atenea.parser.model.SimpleSentence;
 
 /**
  * Clase con metodos para realizar consultas en la base de datos, referidas
@@ -51,9 +51,9 @@ public class DialogQuery {
 	 * @param indexType Tipo de dialogo
 	 * @return Lista de lista de palabras (lista de oraciones)
 	 */
-	public ArrayList<ArrayList<Word>> findAllSentences(String indexType) {
+	public ArrayList<SimpleSentence> findAllSentences(String indexType) {
 		
-		ArrayList<ArrayList<Word>> responses = new ArrayList<>();
+		ArrayList<SimpleSentence> responses = new ArrayList<>();
 		
 		// Obtengo todas los IDs de las respuestas
 		ExecutionResult result = findSentencesByDialogType(indexType, "*");
@@ -71,7 +71,7 @@ public class DialogQuery {
 			
 			response.addAll(resultToResponseWords(result2));
 			
-			responses.add(response);
+			responses.add(new SimpleSentence(response));
 		}
 		
 		return responses;
