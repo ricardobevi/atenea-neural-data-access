@@ -16,7 +16,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.kernel.GraphDatabaseAPI;
-import org.neo4j.server.WrappingNeoServerBootstrapper;
+import org.neo4j.server.WrappingNeoServer;
 import org.squadra.atenea.base.word.Word;
 import org.squadra.atenea.data.definition.Relation;
 import org.squadra.atenea.data.query.DialogQuery;
@@ -26,7 +26,7 @@ import org.squadra.atenea.parser.model.SimpleSentence;
 public class Neo4jServer {
 
 	public static GraphDatabaseService graphDb;
-	public static WrappingNeoServerBootstrapper server;
+	public static WrappingNeoServer server;
 	public static ExecutionEngine engine;
 	
 	public static ArrayList<SimpleSentence> dialogCache;
@@ -52,7 +52,7 @@ public class Neo4jServer {
 
 			engine = new ExecutionEngine(graphDb);
 
-			server = new WrappingNeoServerBootstrapper(
+			server = new WrappingNeoServer(
 					(GraphDatabaseAPI) graphDb);
 			
 			server.start();
