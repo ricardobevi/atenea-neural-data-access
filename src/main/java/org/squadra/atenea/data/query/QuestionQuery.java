@@ -6,39 +6,18 @@ import java.util.Map;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.squadra.atenea.base.word.Word;
 import org.squadra.atenea.data.server.Neo4jServer;
 
 public class QuestionQuery {
 
 
-	public String findAnswer(ArrayList<String> words) {
+	public ArrayList<Word> findAnswer(ArrayList<String> words) {
 		
 		ExecutionResult result = findSentencesByKeyWords(words);
-		String answer = processResult(result);
+		ArrayList<Word> answer = resultToResponseWords(result);
 		return answer;
 		
-	}
-	
-	
-	private String processResult (ExecutionResult result) {
-		
-		//TODO: cambiar
-		String chorizo = "";
-		
-		for ( Map<String, Object> row : result )
-		{
-			Node startNode = (Node) row.get("startNode");
-			Node endNode = (Node) row.get("endNode");
-			Relationship relation = (Relationship) row.get("relation");
-			
-			chorizo += "- " +
-					startNode.getProperty("name") + " " +
-					endNode.getProperty("name") + " " +
-					relation.getProperty("sentenceId") + " " +
-					relation.getProperty("sequence") + " \n";
-		}
-		
-		return chorizo;
 	}
 	
 	
@@ -66,7 +45,7 @@ public class QuestionQuery {
 				where += " relation" + (i-1) + ".sentenceId = relation" + i + ".sentenceId ";
 			}
 			
-			startNodes += " node" + i + " = node:words('name:" + words.get(i) + "') ";
+			startNodes += " node" + i + " = node:words('name:\"" + words.get(i) + "\"') ";
 			matches += "(node" + i + ")-[relation" + i + ":SENTENCE]->() ";
 		}
 		
@@ -78,13 +57,13 @@ public class QuestionQuery {
 				+ 		matches
 				+   where
 				+ " WITH "
-				+ "     relation1 "
+				+ "     relation0 "
 				+ " START "
 				+ "   	startNode = node:words('*:*') "
 				+ " MATCH "
 				+ "     (startNode)-[relation:SENTENCE]->(endNode) "
 				+ " WHERE "
-				+ "     relation.sentenceId = relation1.sentenceId "
+				+ "     relation.sentenceId = relation0.sentenceId "
 				+ " RETURN "
 				+ "		DISTINCT startNode, relation, endNode "
 				+ " ORDER BY "
@@ -95,6 +74,26 @@ public class QuestionQuery {
 		ExecutionResult result = Neo4jServer.engine.execute(query);
 		return result;
 		
+	}
+	
+	
+	private ArrayList<Word> resultToResponseWords(ExecutionResult result) {
+		
+		ArrayList<Word> response = new ArrayList<>();
+		boolean firstRel = true;
+		
+		for ( Map<String, Object> row : result )
+		{
+			if (firstRel) {
+				Node startNode = (Node) row.get("startNode");
+				response.add(Neo4jServer.nodeToWord(startNode));
+				firstRel = false;
+			}
+			
+			Node endNode = (Node) row.get("endNode");
+			response.add(Neo4jServer.nodeToWord(endNode));
+		}
+		return response;
 	}
 	
 	
