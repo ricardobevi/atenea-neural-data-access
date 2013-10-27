@@ -32,7 +32,7 @@ public class QuestionQueryTest {
 		words.add("Martín");
 		
 		QuestionQuery qq = new QuestionQuery();
-		qq.findAnswer(words);
+		qq.findAnswers(words);
 		
 		assertTrue(true);
 	}

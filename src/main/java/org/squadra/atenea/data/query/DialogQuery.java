@@ -70,8 +70,9 @@ public class DialogQuery {
 					(String)((Node) row.get("startNode")).getProperty("name") ));
 			
 			response.addAll(resultToResponseWords(result2));
-			
-			responses.add(new SimpleSentence(response));
+			SimpleSentence ss = new SimpleSentence(response);
+			log.debug(" = " + ss.toString());
+			responses.add(ss);
 		}
 		
 		return responses;
