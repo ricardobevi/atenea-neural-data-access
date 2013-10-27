@@ -8,16 +8,16 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.squadra.atenea.base.word.Word;
 import org.squadra.atenea.data.server.Neo4jServer;
+import org.squadra.atenea.parser.model.SimpleSentence;
 
 public class QuestionQuery {
 
 
-	public ArrayList<Word> findAnswer(ArrayList<String> words) {
+	public ArrayList<SimpleSentence> findAnswers(ArrayList<String> words) {
 		
 		ExecutionResult result = findSentencesByKeyWords(words);
-		ArrayList<Word> answer = resultToResponseWords(result);
-		return answer;
-		
+		ArrayList<SimpleSentence> answers = resultToResponseWords(result);
+		return answers;
 	}
 	
 	
@@ -77,9 +77,11 @@ public class QuestionQuery {
 	}
 	
 	
-	private ArrayList<Word> resultToResponseWords(ExecutionResult result) {
+	private ArrayList<SimpleSentence> resultToResponseWords(ExecutionResult result) {
 		
+		ArrayList<SimpleSentence> responses = new ArrayList<>();
 		ArrayList<Word> response = new ArrayList<>();
+		
 		boolean firstRel = true;
 		
 		for ( Map<String, Object> row : result )
@@ -91,9 +93,17 @@ public class QuestionQuery {
 			}
 			
 			Node endNode = (Node) row.get("endNode");
-			response.add(Neo4jServer.nodeToWord(endNode));
+			
+			Word word = Neo4jServer.nodeToWord(endNode);
+			response.add(word);
+			
+			if (word.getName().equals(".")) {
+				responses.add(new SimpleSentence(response));
+				response.clear();
+				firstRel = true;
+			}
 		}
-		return response;
+		return responses;
 	}
 	
 	
