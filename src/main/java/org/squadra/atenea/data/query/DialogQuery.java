@@ -25,10 +25,11 @@ public class DialogQuery {
 	
 	/**
 	 * Busca en la base de datos una respuesta aleatoria segun el tipo de dialogo
+	 * @param indexType Tipo de indice (igual al de la base de datos)
 	 * @param dialogType Tipo de dialogo
-	 * @return Lista de palabras que conforman la respuesta
+	 * @return SimpleSentence con la respuesta
 	 */
-	public ArrayList<Word> findRandomSentenceByDialogType(String indexType, String dialogType) {
+	public SimpleSentence findRandomSentenceByDialogType(String indexType, String dialogType) {
 		
 		// Obtengo las posibles respuestas al tipo de dialogo
 		ExecutionResult result = findSentencesByDialogType(indexType, dialogType);
@@ -42,14 +43,14 @@ public class DialogQuery {
 		// Convierto la respuesta de nodos a texto
 		ArrayList<Word> response = resultToResponseWords(result2);
 		
-		return response;
+		return new SimpleSentence(response);
 	}
 	
 	
 	/**
 	 * Busca en la base de datos todas las respuestas posibles a un tipo de dialogo
 	 * @param indexType Tipo de dialogo
-	 * @return Lista de lista de palabras (lista de oraciones)
+	 * @return Lista de SimpleSentences con las oraciones
 	 */
 	public ArrayList<SimpleSentence> findAllSentences(String indexType) {
 		
