@@ -13,6 +13,7 @@ public class NeuralDataAccess {
 			
 			try{
 				Neo4jServer.init("./graphDB");
+				NeuralDataAccess.loadCache();
 				isDBStarted = true;
 				
 			} catch (IllegalStateException e){
@@ -27,7 +28,7 @@ public class NeuralDataAccess {
 	}
 	
 	public static void loadCache() {
-		if (isDBStarted) {
+		if (!isDBStarted) {
 			Neo4jServer.loadDialogCache();
 		}
 	}
