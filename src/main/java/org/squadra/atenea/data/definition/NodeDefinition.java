@@ -25,10 +25,22 @@ public class NodeDefinition {
 	public void relateTypeOfDialogWords(Word word1, Word word2, long sentenceId, 
 			int sequence, Integer[] probabilities, String typeOfDialog){
 		
-		Neo4jServer.relateNodesByDialogType(
+		Neo4jServer.relateNodesByType(
 				Neo4jServer.createNode(word1, typeOfDialog),
 				Neo4jServer.createNode(word2, "words"),
 				sentenceId, sequence, probabilities
+		);
+		
+		this.transactionSuccess();
+	}
+	
+	public void relateWikiInfoWords(Word word1, Word word2, long sentenceId, 
+			int sequence, Integer probability){
+		
+		Neo4jServer.relateNodesByWikiType(
+				Neo4jServer.createNode(word1, "words"),
+				Neo4jServer.createNode(word2, "words"),
+				sentenceId, sequence, probability
 		);
 		
 		this.transactionSuccess();
