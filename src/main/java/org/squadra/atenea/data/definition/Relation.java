@@ -6,6 +6,7 @@ public class Relation {
 	public static enum Types implements RelationshipType {
 		SENTENCE,
 		DIALOG,
-		VERB
+		VERB,
+		WIKI_INFO
 	}
 }
