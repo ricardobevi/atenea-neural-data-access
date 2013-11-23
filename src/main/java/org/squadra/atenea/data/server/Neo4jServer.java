@@ -259,7 +259,7 @@ public class Neo4jServer {
 	 * @return
 	 */
 	public static Relationship relateNodesByWikiType (Node node1, Node node2, 
-			long sentenceId, int sequence, int probability) {
+			long sentenceId, int sequence, int probability, String contentType) {
 		
 		Relationship relationship;
 		
@@ -268,6 +268,7 @@ public class Neo4jServer {
 		relationship.setProperty("sentenceId", sentenceId);
 		relationship.setProperty("sequence", sequence);
 		relationship.setProperty("probability", probability);
+		relationship.setProperty("contentType", contentType);
 		
 		return relationship;
 	}

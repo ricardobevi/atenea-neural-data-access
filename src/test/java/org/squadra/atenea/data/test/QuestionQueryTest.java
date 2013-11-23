@@ -1,6 +1,6 @@
 package org.squadra.atenea.data.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 
@@ -9,6 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.squadra.atenea.data.query.QuestionQuery;
 import org.squadra.atenea.data.server.NeuralDataAccess;
+import org.squadra.atenea.parser.model.SimpleSentence;
 
 public class QuestionQueryTest {
 
@@ -22,8 +23,8 @@ public class QuestionQueryTest {
 		NeuralDataAccess.stop();
 	}
 	
-	@Test
-	public void test() {
+	//@Test
+	public void testKeyWords() {
 
 		ArrayList<String> words = new ArrayList<>();
 		words.add("Argentina");
@@ -32,7 +33,22 @@ public class QuestionQueryTest {
 		words.add("Martín");
 		
 		QuestionQuery qq = new QuestionQuery();
-		qq.findAnswers(words);
+		qq.findSentencesByKeyWords(words);
+		
+		assertTrue(true);
+	}
+	
+	@Test
+	public void testAdditionalInfo() {
+
+		String title = "José de San Martín";
+		String subtitle = "cargo";
+		String contentType = "nombre";
+		
+		QuestionQuery qq = new QuestionQuery();
+		String answer = qq.findSentencesFromAdditionalInfo(title, subtitle, contentType);
+		
+		System.out.println(answer);
 		
 		assertTrue(true);
 	}
