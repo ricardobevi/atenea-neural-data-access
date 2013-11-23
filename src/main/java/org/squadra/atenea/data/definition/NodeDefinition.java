@@ -11,6 +11,17 @@ public class NodeDefinition {
 	public NodeDefinition(){
 	}
 	
+	public void relateWords(Word word1, Word word2){
+		
+		Neo4jServer.relateNodesByConcept(
+				Neo4jServer.createNode(word1, "words"),
+				Neo4jServer.createNode(word2, "words")
+				);
+		
+		this.transactionSuccess();
+	}
+	
+	
 	public void relateWords(Word word1, Word word2, long sentenceId, int sequence){
 		
 		Neo4jServer.relateNodesBySentenceType(
