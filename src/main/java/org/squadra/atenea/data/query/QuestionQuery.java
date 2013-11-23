@@ -11,17 +11,13 @@ import org.squadra.atenea.data.server.Neo4jServer;
 import org.squadra.atenea.parser.model.SimpleSentence;
 
 public class QuestionQuery {
-
-
-	public ArrayList<SimpleSentence> findAnswers(ArrayList<String> words) {
-		
-		ExecutionResult result = findSentencesByKeyWords(words);
-		ArrayList<SimpleSentence> answers = resultToResponseWords(result);
-		return answers;
-	}
 	
-	
-	private ExecutionResult findSentencesByKeyWords(ArrayList<String> words) {
+	/**
+	 * Devuelve un conjunto de oraciones que contienen las palabras clave ingreadas.
+	 * @param words Lista de palabras claves a buscar en una oracion.
+	 * @return Listado de oraciones
+	 */
+	public ArrayList<SimpleSentence> findSentencesByKeyWords(ArrayList<String> words) {
 		
 		Neo4jServer.beginTransaction();
 		
@@ -71,12 +67,72 @@ public class QuestionQuery {
 		
 		System.out.println(query);
 		
+		// Ejecuto la consulta
 		ExecutionResult result = Neo4jServer.engine.execute(query);
-		return result;
 		
+		// Convierto el resultado en un conjunto de oraciones
+		return resultToResponseWords(result);
 	}
 	
 	
+	/**
+	 * Devuelve las oraciones que correspondan al titulo y subtitulo ingresados.
+	 * @param title Titulo del articulo de Wikipedia
+	 * @param synonim Sinonimo relacionado al titulo (sustantivo, verbo, etc)
+	 * @return Listado de oraciones
+	 */
+	public String findSentencesFromAdditionalInfo(
+			String title, String synonim, String contentType) {
+		
+		Neo4jServer.beginTransaction();
+		
+		String whereContentType = "";
+		if (contentType != null && !contentType.equals("")) {
+			whereContentType = " AND relation.contentType = '" + contentType + "' ";
+		}
+		
+		String query = 
+				
+				  " START "
+				+ "		title = node:words('name:\"" + title + "\"')"
+				+ " MATCH "
+				+ "		(title)-[relation0:WIKI_INFO]->(synonim)"
+				+ " WHERE "
+				+ "		synonim.name = \"" + synonim + "\""
+				+ " WITH "
+				+ "     title, synonim, relation0 "
+				+ " MATCH "
+				+ "     (synonim)-[relation:WIKI_INFO]->(body) "
+				+ " WHERE "
+				+ "     relation.sentenceId = relation0.sentenceId " + whereContentType
+				+ " RETURN "
+				+ "		relation, body "
+				+ " ORDER BY "
+				+ "     relation.sentenceId, relation.sequence ASC; ";
+		
+		System.out.println(query);
+		
+		// Ejecuto la consulta
+		ExecutionResult result = Neo4jServer.engine.execute(query);
+		
+		// Armo la respuesta, concatenando las oraciones
+		String answers = "";
+		
+		for ( Map<String, Object> row : result ) {
+			
+			Node node = (Node) row.get("body");
+			answers += node.getProperty("name") + ". ";
+		}
+		
+		return answers;
+	}
+	
+	
+	/**
+	 * Convierte el resultado de una consulta de base de datos a una lista de oraciones.
+	 * @param result Resultado de una consulta Neo4j (conjunto de nodos y relaciones)
+	 * @return Listado de oraciones con los objetos Word cargados de la base de datos
+	 */
 	private ArrayList<SimpleSentence> resultToResponseWords(ExecutionResult result) {
 		
 		ArrayList<SimpleSentence> responses = new ArrayList<>();

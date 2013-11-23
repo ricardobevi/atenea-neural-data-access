@@ -35,12 +35,12 @@ public class NodeDefinition {
 	}
 	
 	public void relateWikiInfoWords(Word word1, Word word2, long sentenceId, 
-			int sequence, Integer probability){
+			int sequence, Integer probability, String contentType){
 		
 		Neo4jServer.relateNodesByWikiType(
 				Neo4jServer.createNode(word1, "words"),
 				Neo4jServer.createNode(word2, "words"),
-				sentenceId, sequence, probability
+				sentenceId, sequence, probability, contentType
 		);
 		
 		this.transactionSuccess();
