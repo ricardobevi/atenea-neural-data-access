@@ -1,6 +1,7 @@
 package org.squadra.atenea.data.server;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import lombok.extern.log4j.Log4j;
 
@@ -23,6 +24,7 @@ import org.squadra.atenea.data.query.DialogQuery;
 import org.squadra.atenea.parser.model.SimpleSentence;
 
 @Log4j
+//TODO: deberia ser un singleton
 public class Neo4jServer {
 
 	public static GraphDatabaseService graphDb;
@@ -112,22 +114,32 @@ public class Neo4jServer {
 	 * Crea un nodo tipo Word
 	 * @param value
 	 * @param index
-	 * @return
+	 * @return El nodo creado.
 	 */
 	public static Node createNode(Word value, String index) {
-
+		//TODO: esta logica no pertenece a esta clase, deberia estar en otro lado.
 		Node node = null;
 
 		// obtener nodo si existe
 		Index<Node> nodesIndex = createOrGetIndex(index);
-		Node searchNode = nodesIndex.get("name", value.getName()).getSingle();
-
-		if (searchNode == null) {
-
-			node = graphDb.createNode();
-			setWordNodeProperties(node, value);
+		
+		Node searchNode = value.getName().equals("") ? null : nodesIndex.get("name", value.getName()).getSingle();		
+		
+		if ( searchNode == null ) {
 			
-			nodesIndex.add(node, "name", value.getName());
+			Node searchNodeBaseWord =  value.getBaseWord().equals("") ? null : nodesIndex.get("baseWord", value.getBaseWord()).getSingle();
+
+			if ( searchNodeBaseWord == null ){
+				
+				node = graphDb.createNode();
+				setWordNodeProperties(node, value);
+				
+				nodesIndex.add(node, "name", value.getName());
+				nodesIndex.add(node, "baseWord", value.getBaseWord());
+			
+			} else {
+				node = searchNodeBaseWord;
+			}
 
 		} else {
 			node = searchNode;
@@ -240,6 +252,80 @@ public class Neo4jServer {
 		
 		for (int i = 0; i < probabilities.length; i++) {
 			relationship.setProperty("prob" + i, probabilities[i]);
+		}
+		
+		return relationship;
+	}
+	
+	
+	/**
+	 * Relaciona los nodos. 
+	 *  
+	 * @param node1
+	 * @param node2
+	 * @return La relacion si no estaban relacionados previamente y nulo si si lo estaban.
+	 */
+	public static Relationship relateNodesByConcept (Node node1, Node node2) {
+
+		Relationship relationship = null;
+		
+		Relationship relBetweenNodes = getNodesRelationship(node1, node2);
+		
+		if ( relBetweenNodes == null ){
+			
+			relationship = 
+					node1.createRelationshipTo(
+							node2,
+							DynamicRelationshipType.withName( Relation.Types.CONCEPT.toString() )
+					);
+			
+			relationship.setProperty("weight", 1);
+			
+		} else {
+			
+			Integer currentWeight = (Integer) relBetweenNodes.getProperty("weight");
+			
+			relBetweenNodes.setProperty("weight", currentWeight + 1);
+			
+		}
+
+		
+		
+
+
+		return relationship;
+
+	}
+	
+	/**
+	 * Muestra si los nodos estan relacionados.
+	 * @param node1
+	 * @param node2
+	 * @return true si estan relacionados, false de lo contrario.
+	 */
+	public static Relationship getNodesRelationship(Node node1, Node node2){
+		
+		Relationship relationship = null;
+		
+		Iterator<Relationship> relItNode1 = node1.getRelationships().iterator();
+		
+		while ( relItNode1.hasNext() && relationship == null ) {
+			
+			Relationship relItAux = (Relationship) relItNode1.next();
+			
+			Node[] nodes = relItAux.getNodes();
+			
+			int i = 0;
+			
+			while (i < nodes.length && relationship == null) {
+				
+				if( nodes[i].equals(node2) )
+					relationship = relItAux;
+				
+				i++;
+				
+			}
+			
 		}
 		
 		return relationship;
