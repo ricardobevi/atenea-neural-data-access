@@ -7,6 +7,7 @@ public class Relation {
 		SENTENCE,
 		DIALOG,
 		VERB,
-		CONCEPT
+		CONCEPT,
+		WIKI_INFO
 	}
 }

@@ -240,7 +240,7 @@ public class Neo4jServer {
 	 * @return relacion creada entre los nodos.
 	 * @author Leandro Morrone
 	 */
-	public static Relationship relateNodesByDialogType (Node node1, Node node2, 
+	public static Relationship relateNodesByType (Node node1, Node node2, 
 			long sentenceId, int sequence, Integer[] probabilities) {
 		
 		Relationship relationship;
@@ -250,9 +250,36 @@ public class Neo4jServer {
 		relationship.setProperty("sentenceId", sentenceId);
 		relationship.setProperty("sequence", sequence);
 		
-		for (int i = 0; i < probabilities.length; i++) {
-			relationship.setProperty("prob" + i, probabilities[i]);
+		if (probabilities != null) {
+			for (int i = 0; i < probabilities.length; i++) {
+				relationship.setProperty("prob" + i, probabilities[i]);
+			}
 		}
+		
+		return relationship;
+	}
+	
+	/**
+	 * Relaciona dos nodos con una relacion tipo WIKI_INFO para los cuadritos de la
+	 * wiki y agrega las propiedades de ID de oracion, secuencia y probabilidad.
+	 * @param node1
+	 * @param node2
+	 * @param sentenceId
+	 * @param sequence
+	 * @param probability
+	 * @return
+	 */
+	public static Relationship relateNodesByWikiType (Node node1, Node node2, 
+			long sentenceId, int sequence, int probability, String contentType) {
+		
+		Relationship relationship;
+		
+		relationship = node1.createRelationshipTo(node2, 
+				DynamicRelationshipType.withName(Relation.Types.WIKI_INFO.toString()));
+		relationship.setProperty("sentenceId", sentenceId);
+		relationship.setProperty("sequence", sequence);
+		relationship.setProperty("probability", probability);
+		relationship.setProperty("contentType", contentType);
 		
 		return relationship;
 	}
