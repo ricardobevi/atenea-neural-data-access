@@ -325,6 +325,50 @@ public class Neo4jServer {
 	}
 	
 	/**
+	 * Relaciona los nodos y guarda la oración del contexto donde se realiza la asociación en la relación. 
+	 *  
+	 * @param node1
+	 * @param node2
+	 * @param contextSentence
+	 * @return La relacion si no estaban relacionados previamente y nulo si si lo estaban.
+	 */
+	public static Relationship relateNodesByConceptWithContext (Node node1, Node node2, String contextSentence) {
+
+		Relationship relationship = null;
+		
+		Relationship relBetweenNodes = getNodesRelationship(node1, node2);
+		
+		if ( relBetweenNodes == null ){
+			
+			relationship = 
+					node1.createRelationshipTo(
+							node2,
+							DynamicRelationshipType.withName( Relation.Types.CONCEPT.toString() )
+					);
+			
+			relationship.setProperty("weight", 1);
+			relationship.setProperty("contextSentence", "{{" + contextSentence + "}}");
+			
+		} else {
+			
+			Integer currentWeight = (Integer) relBetweenNodes.getProperty("weight");
+			String currentContextSentence = (String) relBetweenNodes.getProperty("contextSentence");
+			
+			relBetweenNodes.setProperty("weight", currentWeight + 1);
+			
+			relBetweenNodes.setProperty("contextSentence", currentContextSentence + "{{" + contextSentence + "}}");
+			
+		}
+
+		
+		
+
+
+		return relationship;
+
+	}
+	
+	/**
 	 * Muestra si los nodos estan relacionados.
 	 * @param node1
 	 * @param node2
