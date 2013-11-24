@@ -1,0 +1,54 @@
+package org.squadra.atenea.data.server;
+
+import lombok.extern.log4j.Log4j;
+
+@Log4j
+public class NeuralDataAccess {
+	
+	private static boolean isDBStarted = false; 
+	
+	public static void init(){
+		
+		if ( !isDBStarted ){
+			
+			try{
+				// Levanto la base de datos y cargo la cache
+				Neo4jServer.init("./graphDB");
+				//NeuralDataAccess.loadCache();
+				isDBStarted = true;
+				
+			} catch (IllegalStateException e){
+				log.error("Base de datos bloqueada.");
+			}
+		}
+		
+	}
+	
+	
+	public static void init(String path){
+		
+		if ( !isDBStarted ){
+			
+			try{
+				Neo4jServer.init(path);
+				isDBStarted = true;
+				
+			} catch (IllegalStateException e){
+				log.error("Base de datos bloqueada.");
+			}
+		}
+		
+	}
+	
+	public static void stop(){
+		Neo4jServer.stop();
+	}
+	
+	public static void loadCache() {
+		if (!isDBStarted) {
+			Neo4jServer.loadDialogCache();
+		}
+	}
+	
+	
+}
