@@ -123,6 +123,33 @@ public class Neo4jServer {
 		// obtener nodo si existe
 		Index<Node> nodesIndex = createOrGetIndex(index);
 		
+		Node searchNode = !value.getName().equals("") ? nodesIndex.get("name", value.getName()).getSingle() : null ;		
+		
+		if ( searchNode == null ) {
+
+				
+				node = graphDb.createNode();
+				setWordNodeProperties(node, value);
+				
+				nodesIndex.add(node, "name", value.getName());
+	
+
+		} else {
+			node = searchNode;
+		}
+
+		return node;
+	}
+	
+	
+
+	public static Node createNodeBaseWord(Word value, String index) {
+		//TODO: esta logica no pertenece a esta clase, deberia estar en otro lado.
+		Node node = null;
+
+		// obtener nodo si existe
+		Index<Node> nodesIndex = createOrGetIndex(index);
+		
 		Node searchNode = value.getName().equals("") ? null : nodesIndex.get("name", value.getName()).getSingle();		
 		
 		if ( searchNode == null ) {
