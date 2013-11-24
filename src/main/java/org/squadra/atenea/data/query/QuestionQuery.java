@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 import org.squadra.atenea.base.word.Word;
 import org.squadra.atenea.data.server.Neo4jServer;
 import org.squadra.atenea.parser.model.SimpleSentence;
@@ -94,10 +93,11 @@ public class QuestionQuery {
 		String query = 
 				
 				  " START "
-				+ "		title = node:words('name:\"" + title + "\"')"
+				+ "		title = node:words('*:*') "
 				+ " MATCH "
-				+ "		(title)-[relation0:WIKI_INFO]->(synonim)"
+				+ "		(title)-[relation0:WIKI_INFO]->(synonim) "
 				+ " WHERE "
+				+ "		title.name =~ \".*" + title + ".*\" AND "
 				+ "		synonim.name = \"" + synonim + "\""
 				+ " WITH "
 				+ "     title, synonim, relation0 "
