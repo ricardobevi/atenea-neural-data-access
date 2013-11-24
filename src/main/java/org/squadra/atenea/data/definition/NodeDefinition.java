@@ -24,8 +24,8 @@ public class NodeDefinition {
 	public void relateWordsWithContext(Word word1, Word word2, String contextSentence){
 		
 		Neo4jServer.relateNodesByConceptWithContext(
-				Neo4jServer.createNode(word1, "words"),
-				Neo4jServer.createNode(word2, "words"),
+				Neo4jServer.createNodeBaseWord(word1, "words"),
+				Neo4jServer.createNodeBaseWord(word2, "words"),
 				contextSentence
 				);
 		
