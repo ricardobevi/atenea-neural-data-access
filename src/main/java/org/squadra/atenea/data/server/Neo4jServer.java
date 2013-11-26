@@ -445,7 +445,9 @@ public class Neo4jServer {
 	 * @return resultado de la consulta
 	 */
 	public static ExecutionResult excecuteQuery(String query) {
+		
 		ExecutionResult result = engine.execute(query);
+		
 		return result;
 	}
 
