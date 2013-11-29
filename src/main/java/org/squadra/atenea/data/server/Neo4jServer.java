@@ -123,7 +123,7 @@ public class Neo4jServer {
 		// obtener nodo si existe
 		Index<Node> nodesIndex = createOrGetIndex(index);
 		
-		Node searchNode = !value.getName().equals("") ? nodesIndex.get("name", value.getName()).getSingle() : null ;		
+		Node searchNode = nodesIndex.get("name", value.getName()).getSingle();		
 		
 		if ( searchNode == null ) {
 
@@ -162,7 +162,7 @@ public class Neo4jServer {
 				setWordNodeProperties(node, value);
 				
 				nodesIndex.add(node, "name", value.getName());
-				nodesIndex.add(node, "baseWord", value.getBaseWord());
+				
 			
 			} else {
 				node = searchNodeBaseWord;
@@ -171,7 +171,11 @@ public class Neo4jServer {
 		} else {
 			node = searchNode;
 		}
-
+		
+		if ( nodesIndex.get("baseWord", value.getBaseWord()).getSingle() == null ){
+			nodesIndex.add(node, "baseWord", value.getBaseWord());
+		}
+		
 		return node;
 	}
 	
