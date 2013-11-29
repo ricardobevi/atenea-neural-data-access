@@ -19,7 +19,7 @@ public class NeuralDataAccess {
 				//NeuralDataAccess.loadCache();
 				isDBStarted = true;
 				
-				warmUp();
+				//warmUp();
 				
 			} catch (IllegalStateException e){
 				log.error("Base de datos bloqueada.");

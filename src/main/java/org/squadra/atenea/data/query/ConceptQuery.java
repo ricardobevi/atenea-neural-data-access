@@ -19,7 +19,7 @@ import org.squadra.atenea.data.server.Neo4jServer;
 
 public class ConceptQuery {
 	
-	private static int MAX_TIMEOUT = 3000;
+	private static int MAX_TIMEOUT = 4000;
 	
 	private static char[] alphabet = "abcdefghijklmnopqrstuvwxyz".toCharArray();
 	
@@ -47,23 +47,27 @@ public class ConceptQuery {
 			
 			Transaction tx = Neo4jServer.beginTransaction();
 			
-			for (int i = 1; i <= maxDepth; i++) {
-				
-				SearchThread searchThread = new SearchThread(i);
-				
-				executor.execute(searchThread);
-				
-				searchThreads.add( searchThread );
-				
-			}
-			
-			
 			try {
+				
+				for (int i = 1; i <= maxDepth; i++) {
+					
+					SearchThread searchThread = new SearchThread(i);
+					
+					executor.execute(searchThread);
+					
+					searchThreads.add( searchThread );
+					
+				}
+							
 				executor.awaitTermination(MAX_TIMEOUT, TimeUnit.MILLISECONDS);
-				tx.finish();
+				
+				tx.success();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+			} finally {
+				tx.finish();
 			}
+	
 	        
 	        for (int i = 0; i < searchThreads.size(); i++) {
 	        	
@@ -114,7 +118,16 @@ public class ConceptQuery {
 		
 		ExecutionResult execResults = null;
 					
-		execResults = Neo4jServer.excecuteQuery(query);
+		Transaction tx = Neo4jServer.beginTransaction();
+		
+		try {
+			execResults = Neo4jServer.excecuteQuery(query);
+			tx.success();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			tx.finish();
+		}
 					
 	    for (Map<String, Object> execResult : execResults) {
 			Iterator< Map.Entry<String, Object> > it = execResult.entrySet().iterator();
@@ -142,10 +155,44 @@ public class ConceptQuery {
 		return result;
 	}
 	
+	public void rateRelations(Integer rate){
+		
+		if ( concepts.size() > 0 ){
+		
+			String bakedQuery = bakeRelationsRateQuery(rate);
+			
+			System.out.println("RATE QUERY:" + bakedQuery);
+			
+			Neo4jServer.excecuteTransactionalQuery(bakedQuery);
+			
+		}
+		
+	}
+
 	public void addConcept(String concept){
 		concepts.add(concept);
 	}
 	
+	public void clearConcepts(){
+		concepts.clear();
+	}
+	
+	
+	private String bakeRelationsRateQuery(Integer rate){
+		
+		String bakedQuery = "";
+		
+		bakedQuery += bakeStart();
+					
+		bakedQuery += bakeMatch(1);
+		
+		bakedQuery += bakeWhereLiteral();
+		
+		bakedQuery += " FOREACH (n IN relationships(path) : SET n.weight = n.weight + " + rate + ") RETURN a ";
+		
+		return bakedQuery;
+		
+	}
 	
 	private String bakeQuery(Integer depth){
 		
@@ -154,8 +201,6 @@ public class ConceptQuery {
 		bakedQuery += bakeStart();
 					
 		bakedQuery += bakeMatch(depth);
-
-		//bakedQuery += bakeWhere();
 		
 		bakedQuery += bakeWhereLiteral();
 		
@@ -200,6 +245,24 @@ public class ConceptQuery {
 		
 	}
 	
+	private String bakeMatchUndirected(Integer depth){
+		
+		String bakedMatch = "";
+		
+		bakedMatch += " MATCH "
+				+ " path = ";
+	
+		bakedMatch += alphabet[0] + "-[relation:CONCEPT*.."+ depth +"]-" + alphabet[1];
+		
+		for (int i = 2; i < concepts.size(); i++) {
+			bakedMatch += "-[relation:CONCEPT*.."+ depth +"]-" + alphabet[i];
+		}
+		
+		return bakedMatch;
+		
+	}
+	
+	@SuppressWarnings("unused")
 	private String bakeWhere(){
 		
 		String bakedWhere = "";

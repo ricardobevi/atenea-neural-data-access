@@ -450,6 +450,30 @@ public class Neo4jServer {
 		
 		return result;
 	}
+	
+	/**
+	 * Ejecuta una query escrita en lenguaje cypher dentro de una transaccion
+	 * @param query
+	 * @return resultado de la consulta
+	 */
+	public static ExecutionResult excecuteTransactionalQuery(String query) {
+		Transaction tx = graphDb.beginTx();
+		
+		ExecutionResult result = null;
+		
+		try {
+			
+			result = engine.execute(query);
+			tx.success();
+						
+		} catch (Exception e) {
+			tx.failure();	
+		}
+		
+		tx.finish();
+		
+		return result;
+	}
 
 	/**
 	 * Detiene la base de datos
