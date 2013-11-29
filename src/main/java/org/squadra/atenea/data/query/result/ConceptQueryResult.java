@@ -2,8 +2,13 @@ package org.squadra.atenea.data.query.result;
 
 import java.util.ArrayList;
 
+import org.squadra.atenea.data.query.ConceptQuery;
+
 
 public class ConceptQueryResult {
+	
+	private static final int RATE_UP = 100;
+	private static final int RATE_DOWN = -100;
 
 	private ArrayList<String> nodes;
 	private ArrayList<String> contextSentences;
@@ -21,6 +26,30 @@ public class ConceptQueryResult {
 		rawContextSentence = "";
 		rawNodes = "";
 		contextSentences = new ArrayList<String>();
+	}
+	
+	public void rateUp(){
+		
+		rate(RATE_UP);
+		
+	}
+	
+	public void rateDown(){
+		
+		rate(RATE_DOWN);
+		
+	}
+	
+	private void rate(int rate){
+		
+		ConceptQuery conceptQuery = new ConceptQuery();
+		
+		for (String node : nodes) {
+			conceptQuery.addConcept(node.toLowerCase());
+		}
+		
+		conceptQuery.rateRelations(rate);
+		
 	}
 	
 		
@@ -128,7 +157,7 @@ public class ConceptQueryResult {
 		String[] nodesStrings = rawNodesReplaced.split(",");
 		
 		for (int i = 0; i < nodesStrings.length; i++) {
-			nodes.add( nodesStrings[i] );
+			nodes.add( nodesStrings[i].trim() );
 		}
 
 		
